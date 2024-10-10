@@ -1,101 +1,84 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+// Styled Components
+
+const Container = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+`;
+
+const Circle = styled.div`
+  width: 500px; // 200px * 2.5 = 500px
+  height: 500px;
+  border-radius: 50%;
+  background-color: ${(props) => (props.isGreen ? '#2e7d32' : '#f5f5f5')}; // Hellerer grauer Farbton
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CountdownText = styled.h1`
+  font-size: ${(props) => (props.isInside ? '2rem' : '5rem')};
+  color: ${(props) => (props.isInside ? '#66bb6a' : 'black')}; // Helleres Grün für den Countdown im Kreis
+`;
+
+// React Component
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [countdown, setCountdown] = useState(3); // Externer Countdown startet bei 3
+  const [showCircle, setShowCircle] = useState(false); // Zeigt den Kreis nach dem ersten Countdown
+  const [milliseconds, setMilliseconds] = useState(1500); // Countdown im Kreis in Millisekunden auf 1,5 Sekunden
+  const [isGreenCircle, setIsGreenCircle] = useState(true); // Zustandswechsel von grün zu grau
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  useEffect(() => {
+    // Countdown-Logik für den äußeren Countdown
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      setShowCircle(true); // Zeigt den grünen Kreis nach 3 Sekunden
+    }
+  }, [countdown]);
+
+  useEffect(() => {
+    // Countdown-Logik für den inneren Countdown mit Millisekunden
+    if (showCircle && milliseconds > 0) {
+      const interval = setInterval(() => {
+        setMilliseconds((prev) => prev - 10); // Countdown in 10ms-Schritten
+      }, 10);
+      return () => clearInterval(interval);
+    } else if (milliseconds <= 0) {
+      setIsGreenCircle(false); // Wechselt den Kreis von grün zu grau
+      setMilliseconds(0); // Sicherstellen, dass es bei 0 bleibt
+    }
+  }, [showCircle, milliseconds]);
+
+  // Formatiert den Countdown im Kreis mit Sekunden und Millisekunden
+  const formattedTime = () => {
+    const totalMilliseconds = Math.max(milliseconds, 0); // Verhindert negative Werte
+    const seconds = Math.floor(totalMilliseconds / 1000); // Verbleibende Sekunden
+    const millisecondsDisplay = String(totalMilliseconds % 1000).padStart(3, '0'); // Verbleibende Millisekunden
+
+    return `${seconds}:${String(millisecondsDisplay).padStart(3, '0')}`;
+  };
+
+  return (
+    <Container>
+      {showCircle ? (
+        <Circle isGreen={isGreenCircle}>
+          {isGreenCircle ? <CountdownText isInside>{formattedTime()}</CountdownText> : null}
+        </Circle>
+      ) : (
+        <CountdownText>{countdown}</CountdownText>
+      )}
+    </Container>
   );
 }
